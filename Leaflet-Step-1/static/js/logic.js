@@ -6,9 +6,8 @@ d3.json(queryURL, function(data) {
     createFeatures(data.features);
 });
 
-// Step 1
 function createFeatures(earthquakeData) {
-    // 1-1. Create markers
+    // Create markers
     function onEachMap(feature) {
         return new L.circleMarker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], {
             color: 'black',
@@ -19,24 +18,24 @@ function createFeatures(earthquakeData) {
         });
     }
 
-    // 1-2. Create tooltips with the pop-up feature
+    // Create tooltips with the pop-up feature
     function onEachFeature(feature, layer) {
         layer.bindPopup('<h3>' + feature.properties.place + 
         '</h3><hr><p>' + new Date(feature.properties.time) + '</h3>');
     }
 
-    // 1-3. Hold features in one variable named "earthquakes"
+    // Hold features in one variable named "earthquakes"
     var earthquakes = L.geoJSON(earthquakeData, {
         onEachFeature: onEachFeature,
         pointToLayer: onEachMap
     });
 
-    // 1-4. Create the map
+    // Create the map
     createMap(earthquakes);
 }
 
 function createMap(earthquakes) {
-    // 1-5. Define map layers
+    // Define map layers
     var lightmap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
         attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
         maxZoom: 18,
@@ -58,46 +57,46 @@ function createMap(earthquakes) {
         accessToken: API_KEY
       });
     
-    // 1-6. Define basemaps
+    // Define basemaps
     var baseMaps = {
         'Grayscale': lightmap,
         'Satellite': satellitemap,
         'Outdoors': outdoorsmap
     };
 
-    // 1-7. Define overlay maps
+    // Define overlay maps
     var overlayMaps = {
         Earthquakes: earthquakes
     };
 
-    // 1-8. Draw the map
+    // Draw the map
     var myMap = L.map('map', {
         center: [32.715736, -117.161087], // San Diego because I like it
         zoom: 5,
         layers: [lightmap, earthquakes]
     });
 
-    // 1-9. Add controls to the map
+    // Add controls to the map
     L.control.layers(baseMaps, overlayMaps, {
         collapsed: false
     }).addTo(myMap)
 
-    // var info = L.control({
-    //     position: 'bottomright'
-    // });
+    var legend = L.control({position: 'bottomright'});
 
-    // info.onADd = function() {
-    //     var div = L.DomUtil.create("div", "legend");
-    //     var value = [0, 1, 2, 3, 4, 5];
-    //     var scale = ['0-1', '1-2', '2-3', '3-4', '4-5', '5+']
+    legend.onAdd = function(map) {
+        var div = L.DomUtil.create('div', 'info legend'),
+            grades = [0, 1, 2, 3, 4, 5];
+        
+        for (var i = 0; i < grades.length; i++) {
+            div.innerHTML +=
+                '<i style="background:' + colorScale(grades[i] + 1) + '"></i> ' +
+                grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+        }
 
-    //     for (var i = 0; i < value.length; i++) {
-    //         var legendInfo += colorScale[i]
-    //     }
-    //     return div;
-    // };
+        return div;
+    };
 
-    // info.addTo(map);
+    legend.addTo(myMap);
 
 }
 
