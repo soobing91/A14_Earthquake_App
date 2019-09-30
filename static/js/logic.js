@@ -1,14 +1,22 @@
-// Store API endpoint
-var queryURL = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson';
+// Store API endpoints
+var quakeURL = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson';
+var faultURL = 'https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json';
 
-// Perform a GET request to the query url
-d3.json(queryURL, function(data) {
-    createFeatures(data.features);
-});
+// Perform a GET request to the query urls
+d3.json(quakeURL, (d1) => {
+    d3.json(faultURL, (d2) => {
+        var quakeData = d1.features;
+        var faultData = d2.features;
 
-function createFeatures(earthquakeData) {
+        // Run the next job
+        createFeatures(quakeData, faultData);
+    });
+})
+
+function createFeatures(quakeData, faultData) {
+    // Step 1
     // Create markers
-    function onEachMap(feature) {
+    function bubbleMaker(feature) {
         return new L.circleMarker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], {
             color: 'black',
             weight: 1,
@@ -25,16 +33,29 @@ function createFeatures(earthquakeData) {
     }
 
     // Hold features in one variable named "earthquakes"
-    var earthquakes = L.geoJSON(earthquakeData, {
+    var earthquakes = L.geoJSON(quakeData, {
         onEachFeature: onEachFeature,
-        pointToLayer: onEachMap
+        pointToLayer: bubbleMaker
+    });
+
+    // Step 2
+    // Create lines
+    function lineMaker(feature) {
+        L.polyline([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], {
+            color: 'darkorange'
+        });
+    }
+
+    // Hold features in one variable named "faults"
+    var faults = L.geoJSON(faultData, {
+        onEachFeature: lineMaker
     });
 
     // Create the map
-    createMap(earthquakes);
+    createMap(earthquakes, faults);
 }
 
-function createMap(earthquakes) {
+function createMap(earthquakes, faults) {
     // Define map layers
     var lightmap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
         attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
@@ -66,14 +87,15 @@ function createMap(earthquakes) {
 
     // Define overlay maps
     var overlayMaps = {
-        Earthquakes: earthquakes
+        Earthquakes: earthquakes,
+        Faults: faults
     };
 
     // Draw the map
     var myMap = L.map('map', {
         center: [32.715736, -117.161087], // San Diego because I like it
         zoom: 5,
-        layers: [lightmap, earthquakes]
+        layers: [lightmap, earthquakes, faults]
     });
 
     // Add controls to the map
@@ -81,6 +103,7 @@ function createMap(earthquakes) {
         collapsed: false
     }).addTo(myMap)
 
+    // Add legend to the map
     var legend = L.control({position: 'bottomright'});
 
     legend.onAdd = function(map) {
@@ -91,7 +114,7 @@ function createMap(earthquakes) {
             div.innerHTML +=
                 '<i style="background:' + colorScale(grades[i] + 1) + '"></i> ' +
                 grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
-        }
+        };
 
         return div;
     };
