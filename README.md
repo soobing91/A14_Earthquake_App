@@ -8,7 +8,7 @@ For codes, please refer to the following documents:
 * `static/css/style.css`
 * `index.html`
 
-You can access the web dashboard by clicking [here](https://soobing91.github.io/leaflet-challenge/index.html).
+**As Mabox requires API keys to access maps hosted, please place a javascript document named `config.js` that includes API keys into `static/js` before running the application.**
 
 The screenshot below captures the web app:
 
