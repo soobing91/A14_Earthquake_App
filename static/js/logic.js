@@ -41,14 +41,13 @@ function createFeatures(quakeData, faultData) {
     // Step 2
     // Create lines
     function lineMaker(feature) {
-        L.polyline([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], {
-            color: 'darkorange'
-        });
+        L.polyline([feature.geometry.coordinates[1], feature.geometry.coordinates[0]]);
     }
 
     // Hold features in one variable named "faults"
     var faults = L.geoJSON(faultData, {
-        onEachFeature: lineMaker
+        onEachFeature: lineMaker,
+        color: 'darkorange'
     });
 
     // Create the map
