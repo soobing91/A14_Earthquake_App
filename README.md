@@ -1,5 +1,5 @@
-# Assignment 17: Visualizing Data with Leaflet
-This exercises utilizes Leaflet.js to plot geographic locations of earthquake events detected during the last 7 days and boundaries of tectonic plates. Sources of the data used are as follows:
+# Earthquake Along Plate Tectonic Boundaries
+This web-app utilizes Leaflet.js to plot geographic locations of earthquake events detected during the last 7 days and boundaries of tectonic plates. Sources of the data used are as follows:
 * [USGS Geo JSON Feed](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php)
 * [`fraxen/tectonicplates` Github repository](https://github.com/fraxen/tectonicplates/blob/master/GeoJSON/PB2002_boundaries.json)
 
